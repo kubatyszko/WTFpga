@@ -15,26 +15,36 @@ module top(
 //define wires and registers here
 	wire [7:0] disp0,disp1;
 	wire displayClock;
-	wire wire1, wire2;
+	wire[7:0] dispValue;
+	wire[7:0] sum;
+	//wire wire1, wire2;
+	reg[7:0] storedValue;
 	
 //parallel assignments can go here
-	assign disp0 = 0;
-	assign disp1 = 0;
-	assign led[3:1]=5'b0;
-	assign led[0]=wire1;
-	assign led[4]=wire2;
-	assign wire1=BTN1;
-	assign wire2=BTN3;
+	assign led[4:0]=sw[4:0];
+	assign dispValue = BTN1?sum:(BTN2?storedValue:sw);
+	assign sum=sw+storedValue;
+	
 
 //always @ blocks can go here
-//	always @(sensitivity list)
+	always @(negedge BTN_N)
+		
+	begin
+		storedValue<=sw;
+	end
+		
 //		commmands-to-run-when-triggered;
 
 //instantiate modules here
 	nibble_to_seven_seg nibble0(
-		.nibblein(),
-		.segout()
+		.nibblein(dispValue[3:0]),
+		.segout(disp0)
 	);	 
+	nibble_to_seven_seg nibble1(
+		.nibblein(sw[7:4]),
+		.segout(disp1)
+	);	 
+	 
 	 
 	clkdiv displayClockGen(
 		.clk(CLK),
